@@ -1833,8 +1833,17 @@ fi
 
 # Trigger Template Compilation
 echo -e "\n${C_CYAN}[ INFO ]${RESET} Compiling .conf files from Templates..."
-chmod +x "$TARGET_CONFIG_DIR/hypr/scripts/settings_watcher.sh"
-bash "$TARGET_CONFIG_DIR/hypr/scripts/settings_watcher.sh" --compile
+
+# Always use the newly cloned upstream file to guarantee the --compile flag exists
+# This prevents errors for users updating from an older version that lacked this logic.
+if [ -f "$REPO_DIR/.config/hypr/scripts/settings_watcher.sh" ]; then
+    chmod +x "$REPO_DIR/.config/hypr/scripts/settings_watcher.sh"
+    bash "$REPO_DIR/.config/hypr/scripts/settings_watcher.sh" --compile
+else
+    # Fallback to the target directory just in case
+    chmod +x "$TARGET_CONFIG_DIR/hypr/scripts/settings_watcher.sh"
+    bash "$TARGET_CONFIG_DIR/hypr/scripts/settings_watcher.sh" --compile
+fi
 
 # --- 8. Finalize Version Marker & User State Persistence ---
 cat <<EOF > "$VERSION_FILE"
